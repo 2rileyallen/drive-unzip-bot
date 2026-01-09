@@ -1,0 +1,29 @@
+name: Unzip Drive File
+
+on:
+  repository_dispatch:
+    types: [trigger-unzip]
+
+jobs:
+  unzip-job:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360 # 6 hours max
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2
+
+      - name: Run Unzip Script
+        env:
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+          TARGET_FILE_ID: ${{ github.event.client_payload.file_id }}
+        run: python unzip_script.py
